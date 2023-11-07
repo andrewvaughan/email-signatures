@@ -1,0 +1,17 @@
+##
+# GitIgnore.
+#
+# The file patterns here won't commit to the `git` Repository.
+#
+# Don't add operating system or IDE files, here. This file is only for project-releated ignores. If you have ignores
+# specific to your environment, you should add a global ignore file, instead:
+#
+# ```sh
+# git config --global core.excludesfile '~/.gitignore_global'
+# ```
+#
+# @link https://git-scm.com/docs/gitignore
+# @link https://help.github.com/articles/ignoring-files
+#
+
+dist/
