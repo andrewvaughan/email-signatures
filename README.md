@@ -17,9 +17,10 @@ below for your own purposes.
       - [Apple Mail (macOS)](#apple-mail-macos)
       - [Microsoft Outlook (macOS)](#microsoft-outlook-macos)
     - [HTML signatures](#html-signatures)
+      - [Relative links](#relative-links)
   - [Installation](#installation)
   - [Usage](#usage)
-    - [Frontmatter](#frontmatter)
+    - [Dependencies](#dependencies)
   - [License](#license)
 
 ---
@@ -37,18 +38,18 @@ A helper script is available to install these signatures without having to downl
 
 ### Encryption
 
-This script supports AES256 encryption via `openssl` for personally identifiable information. Any text may be encrypted
-within a signature Markdown file by wrapping it with a `{{-...-}}` encryption indicator. For example:
+This script supports AES256 encryption via `openssl` for personally identifiable information. Any text may be enciphered
+within a signature HTML file by wrapping it with a `{e{...}e}` encipher indicator. For example:
 
 ```Markdown
-<span id="not-encrypted">This field is not encrypted</span><br/>
-<span id="encrypted">{{-}}
+<span id="not-enciphered">This field is not enciphered</span><br/>
+<span id="enciphered">{e{SOMEBASE63STRING=}e}</span>
 ```
 
-A helper target is available in the [`Makefile`](Makefile) to encrypt strings for this purpose:
+A helper target is available in the [`Makefile`](Makefile) to encipher strings for this purpose:
 
 ```sh
-make encrypt
+make encipher
 ```
 
 ### Supported clients
@@ -86,6 +87,10 @@ capabilities for signatures:
 
 This is also where all images are hosted from for signatures to prevent image attachment issues.
 
+#### Relative links
+
+Relative links are supported. They will be modified to the appropriate, absolute URL upon generation.
+
 ---
 
 ## Installation
@@ -108,24 +113,19 @@ make apple-mail
 
 ## Usage
 
-Add Markdown files to the [`src/signatures`](src/signatures) directory for each signature you wish to have installed,
-and they will be automatically installed using the methods in the preceding sections.
+Add signature HTML files to the [`src/signatures`](src/signatures) directory for each signature you wish to have
+installed, and they will be automatically installed using the methods in the preceding sections. These files should
+follow email HTML [best practices][best-practices].
 
-> Note - no actual Markdown should be used, as generators will not process Markdown. Always use proper email HTML
-> [best practices][best-practices] in the files. Markdown is used solely as a mechanism to store metadata via the
-> frontmatter for installation.
+The name of the file, with underscores (`_`) being converted to spaces in the name.
 
 After you have added or updated your signatures, run the `make` command to build the `dist` directory. This is
 automatically done for you with GitHub actions for the GitHub Pages site, so this directory should not be committed.
 
-### Frontmatter
+### Dependencies
 
-The frontmatter of the Markdown file informs installation scripts some important details:
-
-| Parameter |  Type  | Required? | Purpose                                                                            |
-| :-------: | :----: | :-------: | :--------------------------------------------------------------------------------- |
-|  `name`   | String |  **Yes**  | The name of the signature when adding it to the application.                       |
-| `version` | Number |    No     | The version of the signature. Will append a `(v##)` string to the end of the name. |
+The build logic for this project uses Node.js to function, as well as a handful of NPM dependencies. Run `npm install`
+prior to running any build or installation scripts.
 
 ---
 

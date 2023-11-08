@@ -3,7 +3,7 @@
 
 SHELL := /bin/bash
 
-.PHONY: all build clean apple-mail outlook encrypt .check-mac
+.PHONY: all build dependencies clean apple-mail outlook encrypt .check-mac
 
 all: build
 
@@ -12,13 +12,13 @@ all: build
 # Generates the `dist` folder used to build the GitHub Pages site.
 #
 build: clean
-	mkdir -p dist/img
-	mkdir -p dist/installers
+	read -s  -p "Cipher password: " PASSWORD; \
+	echo; \
+	node src/Builder.js -u "https://signatures.andrewvaughan.io" -k "$${PASSWORD}"
 
-	cp src/installers/* dist/installers
-	chmod -x dist/installers/*
 
-	# TODO
+dependencies:
+	npm install
 
 
 ##
@@ -30,26 +30,21 @@ clean:
 ##
 # Install the email signatures on macOS Apple Mail from the local repository's configuration.
 #
-apple-mail: .check-mac
+apple-mail: .check-mac build
 	./src/installers/macos.sh --local apple-mail
 
 
 ##
 # Install the signatures on macOS Microsoft Outlook from the local repository's configuration.
 #
-outlook: .check-mac
+outlook: .check-mac build
 	./src/installers/macos.sh --local outlook
 
 
 ##
-# Encrypts provided text for use within templates.
+# Enciphers provided text for use within templates.
 #
-encrypt:
-	if ! command -v openssl >/dev/null 2>&1; then \
-		echo "OpenSSL is not installed. Cannot continue."; \
-		exit 1; \
-	fi
-
+encipher:
 	read -s -p "Password: " PASSWORD; \
 	echo; \
 	read -s -p "Confirm Password: " PASSWORD_CONFIRM; \
@@ -74,7 +69,7 @@ encrypt:
 	echo; \
 	echo "---"; \
 	echo; \
-	openssl aes-256-cbc -e -base64 -A -pbkdf2 -salt -pass "pass:$${PASSWORD}" -in <(echo -e "$${ENC_MSG}"); \
+	node ./src/Builder.js -p "$${PASSWORD}" -e <(echo -e "$${ENC_MSG}"); \
 	echo; \
 	echo;
 

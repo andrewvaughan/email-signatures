@@ -1,0 +1,16 @@
+{
+  "name": "email-signatures",
+  "version": "0.1.0",
+  "description": "Personal email signature generation and installation utility.",
+  "main": "src/Builder.js",
+  "scripts": {
+    "build": "src/Builder.js"
+  },
+  "author": "Andrew Vaughan <hello@andrewvaughan.io>",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "fs-extra": "^11.1.1",
+    "glob-promise": "^6.0.5"
+  }
+}
