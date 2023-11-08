@@ -13,8 +13,14 @@ all: build
 #
 build: clean
 	read -s  -p "Cipher password: " PASSWORD; \
-	echo; \
-	node src/Builder.js -u "https://signatures.andrewvaughan.io" -k "$${PASSWORD}"
+		echo; \
+		node src/Builder.js -u "https://signatures.andrewvaughan.io" -p "$${PASSWORD}"
+
+	echo
+	echo Cleaning up HTML...
+	echo
+
+	./node_modules/prettier/bin/prettier.cjs --ignore-path "" -w ./dist/*.html
 
 
 ##
@@ -49,32 +55,33 @@ outlook: .check-mac build
 #
 encipher:
 	read -s -p "Password: " PASSWORD; \
-	echo; \
-	read -s -p "Confirm Password: " PASSWORD_CONFIRM; \
-	echo; \
-	if [ "$${PASSWORD}" != "$${PASSWORD_CONFIRM}" ]; then \
-		echo "ERROR: Passwords did not match."; \
-		exit 1; \
-	fi; \
-	echo; \
-	echo "Type or paste your encrypted text here. Press CTL+D when finished to encrypt:"; \
-	echo; \
-	ENC_MSG=""; \
-	while IFS= read -r -n 1 CHAR; do \
-		ORD=$$(LC_CTYPE=C printf '%d' "'$${CHAR}"); \
-		case $${ORD} in \
-			4) break ;; \
-			0) ENC_MSG="$${ENC_MSG}\n" ;; \
-			92) ENC_MSG="$${ENC_MSG}\\\\" ;; \
-			*) ENC_MSG="$${ENC_MSG}$${CHAR}" ;; \
-		esac; \
-	done; \
-	echo; \
-	echo "---"; \
-	echo; \
-	node ./src/Builder.js -p "$${PASSWORD}" -e <(echo -e "$${ENC_MSG}"); \
-	echo; \
-	echo;
+		echo; \
+		read -s -p "Confirm Password: " PASSWORD_CONFIRM; \
+		echo; \
+		if [ "$${PASSWORD}" != "$${PASSWORD_CONFIRM}" ]; then \
+			echo "ERROR: Passwords did not match."; \
+			exit 1; \
+		fi; \
+		echo; \
+		echo "Type or paste your encrypted text here. Press CTL+D when finished to encrypt:"; \
+		echo; \
+		ENC_MSG=""; \
+		while IFS= read -r -n 1 CHAR; do \
+			ORD=$$(LC_CTYPE=C printf '%d' "'$${CHAR}"); \
+			case $${ORD} in \
+				4) break ;; \
+				0) ENC_MSG="$${ENC_MSG}\n" ;; \
+				92) ENC_MSG="$${ENC_MSG}\\\\" ;; \
+				*) ENC_MSG="$${ENC_MSG}$${CHAR}" ;; \
+			esac; \
+		done; \
+		echo; \
+		echo "---"; \
+		echo; \
+		node ./src/Builder.js -p "$${PASSWORD}" -e <(echo -e "$${ENC_MSG}"); \
+
+	echo
+	echo
 
 
 ##

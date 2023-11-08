@@ -120,7 +120,8 @@ class Builder {
         .then(async function decipherText(fileData) {
           console.log("Checking signature files for ciphers...");
 
-          let decipherData = {};
+          let ciphers = [];
+          let promises = [];
 
           for (const [file, data] of Object.entries(fileData)) {
             console.log(`    Deciphering file ${file}...`);
@@ -136,25 +137,39 @@ class Builder {
               throw new Error("Cipher strings found, but no decipher key provided.");
             }
 
-            //const hashedKey = crypto.pbkdf2(cipherKey);
-
             matches.forEach((match) => {
-              const dataB64 = match.replace(/{e{|}e}/gi, "");
+              const cipher = match.replace(/{e{|}e}/gi, "");
 
-              console.log(`        Parsing cipher ${dataB64.substring(0, dataB64.length > 20 ? 20 : length)}...`);
+              console.log(`        Parsing cipher ${cipher.substring(0, cipher.length > 20 ? 20 : length)}...`);
 
-              const data = Buffer.from(dataB64, "base64").toString("hex");
-
-              const decipher = crypto.createDecipher("aes-256-cbc", cipherKey);
-
-              let dec = decipher.update(data, "hex", "utf8");
-              dec += decipher.final("utf8");
-
-              console.log(`==> ${dec}`);
+              ciphers.push(match);
+              promises.push(Builder.decipher(cipherKey, cipher));
             });
           }
 
-          return decipherData;
+          return Promise.all([fileData, ciphers, Promise.all(promises)]);
+        })
+
+        // Replace the ciphers with their plaintext
+        .then(async function replaceCiphers([fileData, ciphers, plainTexts]) {
+          console.log("Replacing ciphers with plaintext...");
+
+          let promises = [];
+
+          for (let [filename, content] of Object.entries(fileData)) {
+            console.log(`    Updating file ${filename}...`);
+
+            for (let i = 0; i < ciphers.length; i++) {
+              const cipher = ciphers[i];
+              const plainText = plainTexts[i].trim();
+
+              content = content.replaceAll(cipher, plainText);
+            }
+
+            promises.push(fse.writeFile(filename, content));
+          }
+
+          return Promise.all(promises);
         })
     );
   }
@@ -364,7 +379,8 @@ if (typeof require !== "undefined" && require.main === module) {
 
     console.log("Enciphering...\n");
 
-    fse.readFile(options.encrypt)
+    fse
+      .readFile(options.encrypt)
       .then((content) => {
         return Builder.encipher(options.password, content);
       })
@@ -378,7 +394,7 @@ if (typeof require !== "undefined" && require.main === module) {
   }
 
   // Otherwise, run the builder
-  Builder.build(options.dist, options.urlBase, options.key).catch((err) => {
+  Builder.build(options.dist, options.urlBase, options.password).catch((err) => {
     console.error("FAILURE! Removing partial distribution directory.");
 
     fse.removeSync(options.dist);
