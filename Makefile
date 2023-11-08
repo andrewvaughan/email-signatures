@@ -17,6 +17,9 @@ build: clean
 	node src/Builder.js -u "https://signatures.andrewvaughan.io" -k "$${PASSWORD}"
 
 
+##
+# Install dependencies for the project
+#
 dependencies:
 	npm install
 
