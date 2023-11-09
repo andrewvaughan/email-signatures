@@ -30,7 +30,8 @@ below for your own purposes.
 
 ## Quick start
 
-Currently, three clients are supported for installation:
+Currently, these clients are supported for installation, but HTML files can be generated for any client that supports
+them:
 
 - Apple Mail (macOS)
 - Microsoft Outlook (macOS)
