@@ -54,18 +54,22 @@ make encipher
 
 ### Supported clients
 
-TK
+The following clients are supported for installation. You may be asked for a cipher password if you are running the
+script locally. If the signatures contain no encryption, you will still be asked, but can press `Enter` to continue.
 
 #### Apple Mail (macOS)
 
+> _Note - you must create a signature manually in the application at least once before running for this script to work,
+> even if you immediately delete it._
+
 ```sh
-curl https://signatures.andrewvaughan.io/installers/remote-install.sh | bash -s -- apple-mail [-k ENCRYPTION KEY]
+curl https://signatures.andrewvaughan.io/installers/remote-install.sh | bash -s -- apple-mail
 ```
 
 #### Microsoft Outlook (macOS)
 
 ```sh
-curl https://signatures.andrewvaughan.io/installers/macos.sh | bash -s -- apple-mail [-k ENCRYPTION KEY]
+curl https://signatures.andrewvaughan.io/installers/macos.sh | bash -s -- outlook
 ```
 
 <!-- #### Microsoft Outlook (Windows)

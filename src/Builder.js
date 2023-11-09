@@ -187,8 +187,8 @@ class Builder {
    * @public @static @async
    */
   static async encipher(password, plainText) {
-    // Genreate a random salt for the encipherment
     return (
+      // Genreate a random salt for the encipherment
       promisify(crypto.randomBytes)(this._CIPHER_SALT_LEN)
 
         // Convert the salt to base64

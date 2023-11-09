@@ -3,7 +3,7 @@
 
 SHELL := /bin/bash
 
-.PHONY: all build dependencies clean apple-mail outlook encrypt .check-mac
+.PHONY: all build dependencies clean clean-dist apple-mail outlook encrypt .check-mac
 
 all: build
 
@@ -11,7 +11,7 @@ all: build
 ##
 # Generates the `dist` folder used to build the GitHub Pages site.
 #
-build: clean
+build: clean-dist
 	read -s  -p "Cipher password: " PASSWORD; \
 		echo; \
 		node src/Builder.js -u "https://signatures.andrewvaughan.io" -p "$${PASSWORD}"
@@ -32,21 +32,30 @@ dependencies:
 
 ##
 # Remove artifacts from the build process.
+#
 clean:
+	$(MAKE) clean-dist
+	rm -rf node_modules
+
+
+##
+# Clean distribution files.
+#
+clean-dist:
 	rm -rf dist
 
 
 ##
 # Install the email signatures on macOS Apple Mail from the local repository's configuration.
 #
-apple-mail: .check-mac build
+apple-mail: .check-mac
 	./src/installers/macos.sh --local apple-mail
 
 
 ##
 # Install the signatures on macOS Microsoft Outlook from the local repository's configuration.
 #
-outlook: .check-mac build
+outlook: .check-mac
 	./src/installers/macos.sh --local outlook
 
 
