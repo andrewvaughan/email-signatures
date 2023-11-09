@@ -22,6 +22,7 @@ below for your own purposes.
   - [Installation](#installation)
   - [Usage](#usage)
     - [Dependencies](#dependencies)
+    - [Cloudflare or other WAF users](#cloudflare-or-other-waf-users)
   - [License](#license)
 
 ---
@@ -137,6 +138,16 @@ automatically done for you with GitHub actions for the GitHub Pages site, so thi
 
 The build logic for this project uses Node.js to function, as well as a handful of NPM dependencies. Run `npm install`
 prior to running any build or installation scripts.
+
+### Cloudflare or other WAF users
+
+If you host your pages via a domain name that is hosted by Cloudflare, you may need to create a rule to prevent bot
+scraping or other email obfuscations. Whitelist the script's user agent, `Email Signature Generator/1.0` to do so
+without over-exposing yourself. For example, you may choose to use a similar Cloudflare rule to:
+
+```text
+(http.user_agent contains "Email Signature Installer" and http.host eq "signatures.andrewvaughan.io")
+```
 
 ---
 

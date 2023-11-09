@@ -14,6 +14,11 @@ if [[ "$(uname)" != "Darwin" ]]; then
   exit 1
 fi
 
+##
+# The remote server that GitHub Pages builds to.
+#
+REMOTE_HOST="https://signatures.andrewvaughan.io"
+
 # Cause a glob with no results to result in empty output, rather than to evaluate back to itself.
 shopt -s nullglob
 
@@ -70,10 +75,65 @@ prepare_files() {
 
   # Otherwise, load them remotely via the signature list and create a temporary distribution folder
   else
-    echo "Downloading signatures from remote server..."
+    local SIG_FILE
+    local SIG_LIST
+    local WORK_DIR
 
-    exit 1
-    # TODO
+    echo "Downloading signature list from ${REMOTE_HOST}..."
+
+    # Check for the `jq` utility
+    if ! command -v jq >/dev/null 2>&1; then
+      echo
+      echo "ERROR: Processing remote signatures requires the 'jq' utility. Please install:"
+      echo
+      echo "    https://jqlang.github.io/jq/download/"
+      echo
+
+      exit 8
+    fi
+
+    echo
+    SIG_FILE=$(curl --progress-bar -f -L -A "Email Signature Installer/1.0" "${REMOTE_HOST}/signatures.json")
+
+    if [[ -z "${SIG_FILE}" ]]; then
+      echo
+      echo "    ERROR: Unable to load remote signatures file from ${REMOTE_HOST}/signatures.json"
+
+      exit 7
+    fi
+
+    SIG_LIST=$(echo "${SIG_FILE}" | jq -r ".[]")
+
+    # echo
+    # echo "    ${SIG_COUNT} signature files to download identified."
+
+    echo
+    echo "Creating working directory..."
+
+    WORK_DIR="$(mktemp -d)"
+
+    echo
+    echo "Downloading signature files..."
+
+    SIGS=()
+
+    for SIG in $SIG_LIST; do
+      echo
+      echo "    Downloading ${SIG}..."
+
+      TARGET="${WORK_DIR}/$(basename "${SIG}")"
+
+      echo
+      curl --progress-bar -f -L -A "Email Signature Installer/1.0" -o "${TARGET}" "${SIG}"
+      echo "${TARGET}"
+
+      if [[ $? -ne 0 ]]; then
+        echo "Failed."
+        exit 9
+      fi
+
+      SIGS+=( "${TARGET}" )
+    done
   fi
 }
 
