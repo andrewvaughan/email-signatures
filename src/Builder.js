@@ -62,8 +62,12 @@ class Builder {
     console.log("Creating destination directory...");
 
     return (
-      fse
-        .ensureDir(`${destPath}/signatures`)
+      // Create the directories
+      Promise.all([
+        console.log("Creating directory structure..."),
+        fse.ensureDir(`${destPath}/signatures`),
+        fse.ensureDir(`${destPath}/installers`),
+      ])
 
         // Copy the file structure from the signatures folder over to the distribution folder
         .then(async function copySignatureFiles() {
@@ -260,6 +264,17 @@ class Builder {
           }
 
           return fse.writeFile(`${destPath}/signatures.json`, JSON.stringify(payload));
+        })
+
+        // Copy the installers
+        .then(async function copyInstallers() {
+          console.log("Copying installers to site...");
+
+          return fse.copy(`${__dirname}/installers/`, `${destPath}/installers/`);
+        })
+
+        .then(() => {
+          console.log("Building complete.");
         })
     );
   }

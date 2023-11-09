@@ -72,6 +72,7 @@ prepare_files() {
   else
     echo "Downloading signatures from remote server..."
 
+    exit 1
     # TODO
   fi
 }
