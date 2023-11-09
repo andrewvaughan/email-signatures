@@ -3,6 +3,7 @@
 const crypto = require("crypto");
 const fse = require("fs-extra");
 const glob = require("glob-promise");
+const path = require("path");
 const { promisify } = require("util");
 
 /**
@@ -62,20 +63,20 @@ class Builder {
 
     return (
       fse
-        .ensureDir(destPath)
+        .ensureDir(`${destPath}/signatures`)
 
         // Copy the file structure from the signatures folder over to the distribution folder
-        .then(async function copyFiles() {
+        .then(async function copySignatureFiles() {
           console.log("Copying template files to destination directory...");
 
-          return fse.copy(`${__dirname}/signatures/`, destPath);
+          return fse.copy(`${__dirname}/signatures/`, `${destPath}/signatures/`);
         })
 
         // Get our signature files
         .then(async function getSignatures() {
-          console.log("Identifiy signature files...");
+          console.log("Identifiying signature files...");
 
-          return glob(`${destPath}/*.html`);
+          return glob(`${destPath}/signatures/*.html`);
         })
 
         // Load the files as strings
@@ -95,7 +96,7 @@ class Builder {
           files.forEach((file) => {
             console.log(`    Loading ${file}...`);
 
-            fileData[file] = fse.readFileSync(file, "utf8");
+            fileData[file] = fse.readFileSync(file, "utf-8");
           });
 
           return fileData;
@@ -110,7 +111,7 @@ class Builder {
           for (const [file, data] of Object.entries(fileData)) {
             console.log(`    Parsing file ${file}...`);
 
-            absData[file] = data.replace(/src(?:\s+)?=(?:\s+)?("|')(?!http|\/)/gi, `src=$1${urlBase}/`);
+            absData[file] = data.replace(/src(?:\s+)?=(?:\s+)?("|')(?!http|\/)/gi, `src=$1${urlBase}/signatures/`);
           }
 
           return absData;
@@ -169,7 +170,96 @@ class Builder {
             promises.push(fse.writeFile(filename, content));
           }
 
-          return Promise.all(promises);
+          return Promise.all([Promise.all(promises), fileData]);
+        })
+
+        // Copy root site
+        .then(async function copySiteFiles([_, signatures]) {
+          console.log("Copying root site information to directory...");
+
+          return Promise.all([fse.copy(`${__dirname}/site/`, destPath), signatures]);
+        })
+
+        // Get our templatable site files
+        .then(async function getTemplates([_, signatures]) {
+          console.log("Scanning site files for templates...");
+
+          return Promise.all([glob(`${destPath}/*.{html,txt,css}`), signatures]);
+        })
+
+        // Load the templates as strings
+        .then(async function loadFileData([files, signatures]) {
+          console.log("Loading templates into memory...");
+
+          if (!Array.isArray(files)) {
+            throw TypeError("Expected template files to be an Array.");
+          }
+
+          if (files.length <= 0) {
+            throw Error("No template files found.");
+          }
+
+          let fileData = {};
+
+          files.forEach((file) => {
+            console.log(`    Loading ${file}...`);
+
+            fileData[file] = fse.readFileSync(file, "utf-8");
+          });
+
+          return Promise.all([fileData, signatures]);
+        })
+
+        // Replace templated parameters in the site files
+        .then(async function replaceTemplateParams([templates, signatures]) {
+          console.log("Updating template parameters in root site...");
+
+          // Create our replacable parameters
+          const params = {
+            SIGNATURE_LIST: "",
+          };
+
+          for (const [filePath, signature] of Object.entries(signatures)) {
+            const filename = path.basename(filePath);
+            const name = path.parse(filename).name.replace(/_\-/gi, " ");
+
+            params.SIGNATURE_LIST += `
+              <li>
+                <a href="signatures/${filename}">${name}</a>
+              </li>
+            `;
+          }
+
+          // Replace the content
+          let promises = [];
+
+          for (let [filename, content] of Object.entries(templates)) {
+            console.log(`    Updating file ${filename}...`);
+
+            content = content.replaceAll("{{SIGNATURE_LIST}}", params.SIGNATURE_LIST);
+
+            promises.push(fse.writeFile(filename, content));
+          }
+
+          return Promise.all([
+            Promise.all(promises),
+            signatures,
+          ]);
+        })
+
+        // Create our signature payload
+        .then(function createSignaturePayload([_, signatures]) {
+          console.log("Generating signature payload file...");
+
+          let payload = [];
+
+          for (const [filePath, signature] of Object.entries(signatures)) {
+            const filename = path.basename(filePath);
+
+            payload.push(`${urlBase}/signatures/${filename}`);
+          }
+
+          return fse.writeFile(`${destPath}/signatures.json`, JSON.stringify(payload));
         })
     );
   }

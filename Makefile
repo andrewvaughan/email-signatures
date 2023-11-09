@@ -20,7 +20,7 @@ build: clean-dist
 	echo Cleaning up HTML...
 	echo
 
-	./node_modules/prettier/bin/prettier.cjs --ignore-path "" -w ./dist/*.html
+	./node_modules/prettier/bin/prettier.cjs --ignore-path "" -w ./dist/**/*.html
 
 
 ##
