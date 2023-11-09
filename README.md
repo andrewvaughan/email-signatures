@@ -13,6 +13,7 @@ below for your own purposes.
 - [Email signature manager](#email-signature-manager)
   - [Quick start](#quick-start)
     - [Encryption](#encryption)
+      - [Encryption with GitHub Actions](#encryption-with-github-actions)
     - [Supported clients](#supported-clients)
       - [Apple Mail (macOS)](#apple-mail-macos)
       - [Microsoft Outlook (macOS)](#microsoft-outlook-macos)
@@ -51,6 +52,12 @@ A helper target is available in the [`Makefile`](Makefile) to encipher strings f
 ```sh
 make encipher
 ```
+
+#### Encryption with GitHub Actions
+
+In order to use encryption with the provided GitHub Pages workflow, create an Environment or Repository Secret for the
+Repository under the name `CIPHER_PASSWORD` with your cipher password. This will autoamtically be passed to the build
+script.
 
 ### Supported clients
 
