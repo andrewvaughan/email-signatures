@@ -41,8 +41,8 @@ A helper script is available to install these signatures without having to downl
 
 ### Encryption
 
-This script supports AES256 encryption via `openssl` for personally identifiable information. Any text may be enciphered
-within a signature HTML file by wrapping it with a `{e{...}e}` encipher indicator. For example:
+This script supports AES256 encryption for personally identifiable information. Any text may be enciphered within a
+signature HTML file by wrapping it with a `{e{...}e}` encipher indicator. For example:
 
 ```Markdown
 <span id="not-enciphered">This field is not enciphered</span><br/>
@@ -68,9 +68,6 @@ script locally. If the signatures contain no encryption, you will still be asked
 
 #### Apple Mail (macOS)
 
-> _Note - you must create a signature manually in the application at least once before running for this script to work,
-> even if you immediately delete it._
-
 ```sh
 curl https://signatures.andrewvaughan.io/installers/remote-install.sh | bash -s -- apple-mail
 ```
@@ -93,12 +90,9 @@ _Via **PowerShell**_:
 
 ### HTML signatures
 
-Signatures are also available on the GitHub Pages repository for websites and other clients taht support copy-and-paste
-capabilities for signatures:
+Signatures are also available via the `make build` script when provided the appropriate cipher password.
 
-<https://signatures.andrewvaughan.io>
-
-This is also where all images are hosted from for signatures to prevent image attachment issues.
+A GitHub Pages workflow is also used for remote signature management, as well as image hosting.
 
 #### Relative links
 
@@ -142,9 +136,11 @@ prior to running any build or installation scripts.
 
 ### Cloudflare or other WAF users
 
-If you host your pages via a domain name that is hosted by Cloudflare, you may need to create a rule to prevent bot
-scraping or other email obfuscations. Whitelist the script's user agent, `Email Signature Generator/1.0` to do so
-without over-exposing yourself. For example, you may choose to use a similar Cloudflare rule to:
+If you host your Pages via a domain name that is hosted by Cloudflare or another provider that provides
+scrape-prevention services, you may need to create a rule to allow this script to function properly. Whitelist the
+script's user-agent, `Email Signature Generator/1.0`, to do so without over-exposing yourself.
+
+For example, you may choose to use a similar Cloudflare rule to:
 
 ```text
 (http.user_agent contains "Email Signature Installer" and http.host eq "signatures.andrewvaughan.io")
