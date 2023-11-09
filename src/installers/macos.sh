@@ -130,8 +130,7 @@ END
     # Remove the extension
     NAME="${FILENAME%.*}"
 
-    # Convert dashes and underscores to spaces
-    NAME="${NAME//-/ }"
+    # Convert underscores to spaces
     NAME="${NAME//_/ }"
 
     echo
@@ -188,9 +187,8 @@ install_outlook() {
     # Remove the extension
     NAME="${FILENAME%.*}"
 
-    # Convert dashes and underscores to spaces
+    # Convert underscores to spaces
     NAME="${NAME//_/ }"
-    NAME="${NAME//-/ }"
 
     # Escape double-quotes for the OSA script
     SIG_HTML=$(cat "${SIG_TPL_FILE}")

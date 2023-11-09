@@ -128,7 +128,7 @@ Add signature HTML files to the [`src/signatures`](src/signatures) directory for
 installed, and they will be automatically installed using the methods in the preceding sections. These files should
 follow email HTML [best practices][best-practices].
 
-The name of the file, with underscores (`_`) being converted to spaces in the name.
+The name of the signature is the filename, sans `.html` extension, with underscores (`_`) converted to spaces.
 
 After you have added or updated your signatures, run the `make` command to build the `dist` directory. This is
 automatically done for you with GitHub actions for the GitHub Pages site, so this directory should not be committed.

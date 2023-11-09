@@ -221,7 +221,7 @@ class Builder {
 
           for (const [filePath, signature] of Object.entries(signatures)) {
             const filename = path.basename(filePath);
-            const name = path.parse(filename).name.replace(/_\-/gi, " ");
+            const name = path.parse(filename).name.replace(/_/gi, " ");
 
             params.SIGNATURE_LIST += `
               <li>
