@@ -66,7 +66,7 @@ prepare_files() {
       exit 4
     fi
 
-    SIGS=( $(pwd)/dist/*.html )
+    SIGS=( $(pwd)/dist/signatures/*.html )
 
   # Otherwise, load them remotely via the signature list and create a temporary distribution folder
   else
@@ -177,13 +177,13 @@ install_outlook() {
   echo
   echo "Installing signatures on Outlook client..."
 
-  for SIG in "${SIGS[@]}"; do
+  for SIG_TPL_FILE in "${SIGS[@]}"; do
     local FILENAME
     local NAME
     local SIG_HTML
     local SIG_HTML_ESC
 
-    FILENAME=$(basename "${SIG}")
+    FILENAME=$(basename "${SIG_TPL_FILE}")
 
     # Remove the extension
     NAME="${FILENAME%.*}"
@@ -193,7 +193,7 @@ install_outlook() {
     NAME="${NAME//-/ }"
 
     # Escape double-quotes for the OSA script
-    SIG_HTML=$(cat "${SIG}")
+    SIG_HTML=$(cat "${SIG_TPL_FILE}")
     SIG_HTML_ESC="${SIG_HTML//\"/\\\"}"
 
     echo
