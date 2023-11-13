@@ -238,30 +238,26 @@ install_outlook() {
   echo "Installing signatures on Outlook client..."
 
   for SIG_TPL_FILE in "${SIGS[@]}"; do
-    local FILENAME
     local NAME
-    local SIG_HTML
-    local SIG_HTML_ESC
 
-    FILENAME=$(basename "${SIG_TPL_FILE}")
+    NAME=$(basename "${SIG_TPL_FILE}")
 
     # Remove the extension
-    NAME="${FILENAME%.*}"
+    NAME="${NAME%.*}"
 
     # Convert underscores to spaces
     NAME="${NAME//_/ }"
-
-    # Escape double-quotes for the OSA script
-    SIG_HTML=$(cat "${SIG_TPL_FILE}")
-    SIG_HTML_ESC="${SIG_HTML//\"/\\\"}"
 
     echo
     echo "    Installing '${NAME}' on Outlook..."
     echo
 
     osascript <<END
+      set sigName to "${NAME}"
+      set sigContent to (read ("${SIG_TPL_FILE}"))
+
       tell application id "com.microsoft.Outlook"
-        make new signature with properties {name:"${NAME}", content:"${SIG_HTML_ESC}"}
+        make new signature with properties {name:sigName, content:sigContent}
       end tell
 END
   done
